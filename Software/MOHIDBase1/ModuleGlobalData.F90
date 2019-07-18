@@ -204,7 +204,7 @@ Module ModuleGlobalData
     integer, parameter :: MIL_PORT_         = 3         !Coordenadas Militares Portuguesas     
     integer, parameter :: SIMPLE_GEOG_      = 4         !Coordenadas Geograficas Simplificadas
                                                         !SIMPLE_GEOG_ - considera a terra como uma esfera
-    integer, parameter :: GRID_COORD_       = 5         !Coordenadas relativas à origem da malha
+    integer, parameter :: GRID_COORD_       = 5         !Coordenadas relativas ï¿½ origem da malha
     integer, parameter :: CIRCULAR_         = 6         !Coordenadas circulares (XX- raio, YY - anglo em graus)
     integer, parameter :: NLRD_             = 7         !Coordenadas Netherlands RD
     integer, parameter :: LAMB_CONF_CONIC_  = 8
@@ -237,8 +237,8 @@ Module ModuleGlobalData
     integer, parameter :: GWFlowToChanByLayer_              = 2
     
     !Angles Referential
-    integer, parameter :: NauticalReferential_              = 1   !0º is from N, 90º is from E
-    integer, parameter :: CurrentsReferential_              = 2   !0º is to N, 90º is to E
+    integer, parameter :: NauticalReferential_              = 1   !0ï¿½ is from N, 90ï¿½ is from E
+    integer, parameter :: CurrentsReferential_              = 2   !0ï¿½ is to N, 90ï¿½ is to E
 
     !Water Properties 
     integer, parameter :: Density_                          =  0        
@@ -540,6 +540,7 @@ Module ModuleGlobalData
     integer, parameter :: SunHours_                         = 611
     integer, parameter :: ATMTransmitivity_                 = 612
     integer, parameter :: MeanSeaLevelPressure_             = 613
+    integer, parameter :: MSLPWRF_                          = 630 !by Alexandre Correia
     integer, parameter :: WindModulus_                      = 614
     integer, parameter :: WindDirection_                    = 615
     integer, parameter :: SpecificHumidity_                 = 616
@@ -1524,6 +1525,7 @@ Module ModuleGlobalData
     
 
     character(StringLength), private, parameter :: Char_MeanSeaLevelPressure     = 'mean sea level pressure'
+    character(StringLength), private, parameter :: Char_MSLPWRF                  = 'mslp_WRF'                    ! by Alexandre Correia
     character(StringLength), private, parameter :: Char_WindModulus              = 'wind modulus'
     character(StringLength), private, parameter :: Char_WindModulusBeaufort      = 'wind modulus beaufort'    
     character(StringLength), private, parameter :: Char_WindDirection            = 'wind direction'
@@ -2971,7 +2973,8 @@ do2:            do i=1, DynamicPropertiesNumber
             call AddPropList (AtmospDeposReduNH4_ ,     Char_AtmospDeposReduNH4     ,      ListNumber)
             call AddPropList (WindGust_ ,               Char_WindGust               ,      ListNumber)
             call AddPropList (PBLHeight_ ,              Char_PBLHeight              ,      ListNumber)
-            call AddPropList (MeanSeaLevelPressure_ ,   Char_MeanSeaLevelPressure,      ListNumber)
+            call AddPropList (MeanSeaLevelPressure_ ,   Char_MeanSeaLevelPressure   ,      ListNumber)
+            call AddPropList (MSLPWRF_ ,                Char_MSLPWRF                ,      ListNumber) !by Alexandre Correia
             call AddPropList (WindModulus_ ,            Char_WindModulus         ,      ListNumber)
             call AddPropList (WindModulusBeaufort_ ,    Char_WindModulusBeaufort ,      ListNumber)            
             call AddPropList (WindDirection_ ,          Char_WindDirection       ,      ListNumber)
@@ -4295,5 +4298,5 @@ do2:    do
 end module ModuleGlobalData
 
 !MOHID Water Modelling System.
-!Copyright (C) 1985, 1998, 2002, 2006. MARETEC, Instituto Superior Técnico, Technical University of Lisbon. 
+!Copyright (C) 1985, 1998, 2002, 2006. MARETEC, Instituto Superior Tï¿½cnico, Technical University of Lisbon. 
 
