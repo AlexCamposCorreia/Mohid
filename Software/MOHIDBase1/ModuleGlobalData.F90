@@ -542,13 +542,14 @@ Module ModuleGlobalData
     integer, parameter :: SunHours_                         = 611
     integer, parameter :: ATMTransmitivity_                 = 612
     integer, parameter :: MeanSeaLevelPressure_             = 613
-    integer, parameter :: MSLPWRF_                          = 630 !by Alexandre Correia
+    integer, parameter :: MSLPWRF_                          = 99991 !Alexandre Correia
     integer, parameter :: WindModulus_                      = 614
     integer, parameter :: WindDirection_                    = 615
     integer, parameter :: SpecificHumidity_                 = 616
     integer, parameter :: WindModulusBeaufort_              = 619
     integer, parameter :: WindGust_                         = 624
     integer, parameter :: PBLHeight_                        = 625
+    integer, parameter :: PBLHeight2_                       = 99992 !Alexandre Correia
     integer, parameter :: Reflectivity_                     = 626
     !vectorial
     integer, parameter :: WindVelocity_                     = 627
@@ -1529,11 +1530,12 @@ Module ModuleGlobalData
     character(StringLength), private, parameter :: Char_SunHours                 = 'sunshine hours'
     character(StringLength), private, parameter :: Char_ATMTransmitivity         = 'atmospheric transmitivity'
     character(StringLength), private, parameter :: Char_PBLHeight                = 'pbl height'
+    character(StringLength), private, parameter :: Char_PBLHeight2                = 'PBL height' !Alexandre Correia
     character(StringLength), private, parameter :: Char_Reflectivity             = 'reflectivity'    
     
 
     character(StringLength), private, parameter :: Char_MeanSeaLevelPressure     = 'mean sea level pressure'
-    character(StringLength), private, parameter :: Char_MSLPWRF                  = 'mslp_WRF'                    ! by Alexandre Correia
+    character(StringLength), private, parameter :: Char_MSLPWRF                  = 'mslp_WRF' !Alexandre Correia
     character(StringLength), private, parameter :: Char_WindModulus              = 'wind modulus'
     character(StringLength), private, parameter :: Char_WindModulusBeaufort      = 'wind modulus beaufort'    
     character(StringLength), private, parameter :: Char_WindDirection            = 'wind direction'
@@ -2984,8 +2986,9 @@ do2:            do i=1, DynamicPropertiesNumber
             call AddPropList (AtmospDeposReduNH4_ ,     Char_AtmospDeposReduNH4     ,      ListNumber)
             call AddPropList (WindGust_ ,               Char_WindGust               ,      ListNumber)
             call AddPropList (PBLHeight_ ,              Char_PBLHeight              ,      ListNumber)
+            call AddPropList (PBLHeight2_ ,             Char_PBLHeight2             ,      ListNumber) !Alexandre Correia
             call AddPropList (MeanSeaLevelPressure_ ,   Char_MeanSeaLevelPressure   ,      ListNumber)
-            call AddPropList (MSLPWRF_ ,                Char_MSLPWRF                ,      ListNumber) !by Alexandre Correia
+            call AddPropList (MSLPWRF_ ,                Char_MSLPWRF                ,      ListNumber) !Alexandre Correia
             call AddPropList (WindModulus_ ,            Char_WindModulus         ,      ListNumber)
             call AddPropList (WindModulusBeaufort_ ,    Char_WindModulusBeaufort ,      ListNumber)            
             call AddPropList (WindDirection_ ,          Char_WindDirection       ,      ListNumber)
