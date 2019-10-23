@@ -1259,6 +1259,11 @@ Module ModuleWaterProperties
         logical                                 :: PhreeqCOnlyForStart = .false.
 
         logical                                 :: Continuous = .false.
+        logical                                 :: Optimize   = .false.
+        logical                                 :: OptimizeHorizontalAdvection = .false.
+        logical                                 :: OptimizeHorizontalDiffusion = .false.
+        logical                                 :: OptimizeVerticalAdvection   = .false.
+        logical                                 :: OptimizeVerticalDiffusion   = .false.
         
         integer                                 :: Docycle_method = 1
 
@@ -1854,6 +1859,60 @@ cd0 :   if (ready_ .EQ. OFF_ERR_) then
                      STAT         = status)
         if (status /= SUCCESS_) &
             call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR10')
+        
+        call GetData(Me%Optimize,                               &
+                     Me%ObjEnterData, iflag,                    &
+                     SearchType   = FromFile,                   &
+                     keyword      = 'OPTIMIZE',                 &
+                     default      = .false.,                    &
+                     ClientModule = 'ModuleWaterProperties',    &
+                     STAT         = status)
+        if (status /= SUCCESS_) &
+            call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR11')
+        
+        if (Me%Optimize) then
+            
+            call GetData(Me%OptimizeHorizontalAdvection,                             &
+                         Me%ObjEnterData, iflag,                    &
+                         SearchType   = FromFile,                   &
+                         keyword      = 'OPTIMIZE_ADVECTIONH',      &
+                         default      = .true.,                    &
+                         ClientModule = 'ModuleWaterProperties',    &
+                         STAT         = status)
+            if (status /= SUCCESS_) &
+                call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR11')
+        
+            call GetData(Me%OptimizeHorizontalDiffusion,                      &
+                         Me%ObjEnterData, iflag,                    &
+                         SearchType   = FromFile,                   &
+                         keyword      = 'OPTIMIZE_DIFFUSIONH',      &
+                         default      = .true.,                    &
+                         ClientModule = 'ModuleWaterProperties',    &
+                         STAT         = status)
+            if (status /= SUCCESS_) &
+                call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR12')
+        
+            call GetData(Me%OptimizeVerticalAdvection,                             &
+                         Me%ObjEnterData, iflag,                    &
+                         SearchType   = FromFile,                   &
+                         keyword      = 'OPTIMIZE_ADVECTIONV',      &
+                         default      = .true.,                    &
+                         ClientModule = 'ModuleWaterProperties',    &
+                         STAT         = status)
+            if (status /= SUCCESS_) &
+                call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR13')
+        
+            call GetData(Me%OptimizeVerticalDiffusion,              &
+                         Me%ObjEnterData, iflag,                    &
+                         SearchType   = FromFile,                   &
+                         keyword      = 'OPTIMIZE_DIFFUSIONV',      &
+                         default      = .true.,                    &
+                         ClientModule = 'ModuleWaterProperties',    &
+                         STAT         = status)
+            if (status /= SUCCESS_) &
+                call CloseAllAndStop ('ReadConfiguration - ModuleWaterProperties - ERR14')
+            
+        endif
 
         if (Me%Continuous) then
             Me%MustStartPhreeqC = .false.
@@ -12308,10 +12367,10 @@ cd1 :   if (ready_ .EQ. IDLE_ERR_) then
 
             if (Me%NoFlux%ON)                                 &
                 call ModifyNoFluxMapping
-
+            
             if (Me%Coupled%AdvectionDiffusion%Yes)            &
                 call Advection_Diffusion_Processes
-
+            
             if (Me%Coupled%InstantMixing%Yes)                 &
                 call InstantaneouslyMixing
 
@@ -12319,24 +12378,24 @@ cd1 :   if (ready_ .EQ. IDLE_ERR_) then
             if (Me%Coupled%MinimumConcentration%Yes .or.      &
                 Me%Coupled%MaximumConcentration%Yes)          &
                 call SetLimitsConcentration(PhysicalProcesses = .true.) !('Physical Processes')
-
+            
             if (Me%Coupled%FreeVerticalMovement%Yes)          &
                 call FreeVerticalMovements_Processes
-
+            
             if (Me%Coupled%BottomFluxes%Yes)                  &
                 call Bottom_Processes
-
+            
             !Sets Limits to the concentration
             if (Me%Coupled%MinimumConcentration%Yes .or.      &
                 Me%Coupled%MaximumConcentration%Yes)          &
                 call SetLimitsConcentration(PhysicalProcesses = .false.) !('Bottom Processes')
-
+            
             if (Me%SolarRadiation%Exists)                       &
                 call ModifySolarRadiation
-
+            
             if (Me%OxygenSaturation)                          &
                 call ModifyOxygenSaturation
-
+            
             if (Me%Coupled%DecayRateProperty%Yes)             &
                 call ModifyDecayRate
 
@@ -12345,7 +12404,7 @@ cd1 :   if (ready_ .EQ. IDLE_ERR_) then
 
             if (Me%Coupled%SurfaceFluxes%Yes)                 &
                 call Surface_Processes
-
+            
             if (Me%ChemLinks%Coupled)                         &
                 call ChemicalLinks
 
@@ -12356,7 +12415,7 @@ cd1 :   if (ready_ .EQ. IDLE_ERR_) then
 
             if (Me%Coupled%WQM%Yes)                           &
                 call WaterQuality_Processes
-
+            
             if (Me%Coupled%CEQUALW2%Yes)                      &
                 call CEQUALW2_Processes
 
@@ -13582,9 +13641,8 @@ cd2:    if (PropertySon%SubModel%InterpolTime) then
             enddo
 
         else
-            !Sobrinho
-            !$OMP DO SCHEDULE(DYNAMIC,ChunkK)
             do k = KLB, KUB
+            !$OMP DO SCHEDULE(DYNAMIC,CHUNK)
             do j = JLB, JUB
             do i = ILB, IUB
                 if (Open3DSon(i, j, k) == OpenPoint) then
@@ -13603,8 +13661,8 @@ cd2:    if (PropertySon%SubModel%InterpolTime) then
                 endif
             enddo
             enddo
-            enddo
             !$OMP END DO
+            enddo
 
         endif
         !$OMP END PARALLEL
@@ -14165,6 +14223,8 @@ cd2:    if (PropertySon%SubModel%InterpolTime) then
             Property => Property%Next
         enddo
         if (Me%Coupled%AdvectionDiffusion%NumberOfProperties < 2) OptimizeFlag = .false.
+        
+        if (.not. Me%Optimize) OptimizeFlag = .false.
 
         FirstWaterProperty = .true.
         Property => Me%FirstProperty
@@ -14326,7 +14386,7 @@ cd10:                       if (Property%evolution%Advec_Difus_Parameters%Implic
                         endif
                     endif
 
-                    if (Property%Evolution%Discharges)then !Joao sobrinnho
+                    if (Property%Evolution%Discharges)then
 
                         call SetDischarges (Me%ObjAdvectionDiffusion, Me%Discharge%Flow,    &
                                                 Property%DischConc,   Me%Discharge%i,       &
@@ -14390,6 +14450,10 @@ cd10:                       if (Property%evolution%Advec_Difus_Parameters%Implic
                             NoFluxV           = Me%NoFlux%V,                                &
                             NoFluxW           = Me%NoFlux%W,                                &
                             Optimize          = OptimizeFlag,                               &
+                            Optimize_AdvH     = Me%OptimizeHorizontalAdvection,                &
+                            Optimize_DifH     = Me%OptimizeHorizontalDiffusion,                &
+                            Optimize_AdvV     = Me%OptimizeVerticalAdvection,                  &
+                            Optimize_DifV     = Me%OptimizeVerticalDiffusion,                  &
                             FirstProperty     = FirstWaterProperty,                         &
                             STAT              = STAT_CALL)
                     if (STAT_CALL .NE. SUCCESS_)                                            &
@@ -15258,6 +15322,8 @@ cd5:                if (TotalVolume > 0.) then
             if (PropertyX%Evolution%WaterQuality) then
 
                 if (Me%ExternalVar%Now .GE.PropertyX%Evolution%NextCompute) then
+                    
+                   PropertyX%Evolution%SetLimitsTrigger = .true.
 
                    call Modify_Interface(InterfaceID   = Me%ObjInterface,               &
                                          PropertyID    = PropertyX%ID%IDNumber,         &
@@ -19907,7 +19973,7 @@ do1 :   do while (associated(PropertyX))
 
 cd1 :       if (Property%Evolution%MinConcentration) then
                 !$OMP PARALLEL PRIVATE(I,J,K, Kbottom)
-                if (Me%Docycle_method == 2) then
+                if (Me%Docycle_method == 1) then
                     CHUNK = CHUNK_J(Me%WorkSize%JLB, Me%WorkSize%JUB)
                     
                     !$OMP DO SCHEDULE(DYNAMIC, CHUNK)
@@ -19962,7 +20028,7 @@ cd2 :       if (Property%Evolution%MaxConcentration) then
                 !$OMP PARALLEL PRIVATE(I,J,K, Kbottom)
                 CHUNK = CHUNK_J(Me%WorkSize%JLB, Me%WorkSize%JUB)
     
-                if (Me%Docycle_method == 2) then
+                if (Me%Docycle_method == 1) then
                     
                     !$OMP DO SCHEDULE(DYNAMIC, CHUNK)
                     do j=Me%WorkSize%JLB, Me%WorkSize%JUB
